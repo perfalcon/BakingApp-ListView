@@ -68,8 +68,8 @@ public class DetailActivity extends AppCompatActivity implements RecipeFragment.
             baking = intent.getParcelableExtra (BAKING_KEY);
             Log.v(TAG,"baking--->"+baking);
             Log.v (TAG,"Recipe Name -->"+baking.getName ());
-            bakingId = intent.getIntExtra (BAKING_ID,0);
-            Log.v (TAG, "RECIPE CLICKED-->" + bakingId);
+            /*bakingId = intent.getIntExtra (BAKING_ID,0);
+            Log.v (TAG, "RECIPE CLICKED-->" + bakingId);*/
 
         }
         if(findViewById(R.id.android_me_linear_layout) != null) {
@@ -145,17 +145,6 @@ public class DetailActivity extends AppCompatActivity implements RecipeFragment.
         int[] ids = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(new ComponentName (getApplication(), HomeScreenWidgetProvider.class));
         HomeScreenWidgetProvider myWidget = new HomeScreenWidgetProvider ();
         myWidget.onUpdate(this, AppWidgetManager.getInstance(this),ids);
-    }
-
-    private String prettyIngredients(List<Ingredient> ingredientList){
-        ListIterator it =ingredientList.listIterator ();
-        StringBuilder sb = new StringBuilder () ;
-        while(it.hasNext ()){
-            Ingredient ingredient =(Ingredient) it.next ();
-            Log.v(TAG,"ingredients-->"+ingredient.getIngredient ()+"|"+ingredient.getQuantity ()+ingredient.getMeasure ());
-            sb.append (ingredient.getIngredient ()+"|"+ingredient.getQuantity ()+ingredient.getMeasure ());
-        }
-        return sb.toString ();
     }
 
     @Override

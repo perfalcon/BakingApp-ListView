@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getName();
     private TextView btnRequest;
-    private List<Baking> mBaking;
+    public List<Baking> mBaking;
 
     private RequestQueue mRequestQueue;
     private StringRequest mStringRequest;
