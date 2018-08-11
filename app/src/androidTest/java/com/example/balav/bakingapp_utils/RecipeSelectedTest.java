@@ -1,5 +1,6 @@
 package com.example.balav.bakingapp_utils;
 
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.RecyclerViewActions;
@@ -37,6 +38,9 @@ public class RecipeSelectedTest {
     @Rule
     public ActivityTestRule<MainActivity> activityRule = new ActivityTestRule<>(MainActivity.class);
 
+
+
+
     Baking baking;
 
      public void prepBakingRecipe(){
@@ -56,7 +60,6 @@ public class RecipeSelectedTest {
                         withHolderRecipe ("Cheesecake")
                 )
         ).perform (click ());
-
     }
 
 
@@ -69,21 +72,31 @@ public class RecipeSelectedTest {
         ).perform (click ());
 
         prepBakingRecipe ();
+       Log.v("Baking 123213123-->",baking.toString ());
+    }
 
+    @Test
+    public void mentorTest(){
+        onView(withId(R.id.rv_recipe)).perform(
+                RecyclerViewActions.scrollToHolder(
+                        withHolderRecipe ("Cheesecake")
+                )
+        ).perform (click ());
 
-        ActivityTestRule<DetailActivity> activityDetailRule = new ActivityTestRule<DetailActivity>(DetailActivity.class){
+        final ActivityTestRule detailActivity = new ActivityTestRule<DetailActivity> (DetailActivity.class);
+        Intent intent = new Intent (InstrumentationRegistry.getContext(),DetailActivity.class);
+        intent.putExtra(DetailActivity.BAKING_KEY,activityRule.getActivity ().mBaking.get (1));
+        detailActivity.launchActivity (intent);
+        detailActivity.getActivity ().runOnUiThread (new Runnable () {
             @Override
-            protected Intent getActivityIntent() {
-                Intent intent = new Intent (InstrumentationRegistry.getContext(),MainActivity.class);
-                intent.putExtra(DetailActivity.BAKING_KEY,baking);
-                return intent;
+            public void run() {
+                DetailActivity activity = (DetailActivity)detailActivity.getActivity ();
+                android.support.v4.app.FragmentTransaction transaction = activity.getSupportFragmentManager ().beginTransaction ();
+                RecipeFragment recipeFragment = new RecipeFragment ();
+                transaction.add(recipeFragment,"RecipeFragment");
+                transaction.commit ();
             }
-        };
-
-     //   activityDetailRule.getActivity ().getSupportFragmentManager ().beginTransaction ();
-
-        onData(anything()).inAdapterView(withId(R.id.lv_steps)).atPosition(0).perform(click());
-        //onView(withId(R.id.tea_name_text_view)).check(matches(withText(TEA_NAME)));
+        });
     }
 
     public static Matcher<RecyclerView.ViewHolder> withHolderRecipe(final String text) {
@@ -105,4 +118,9 @@ public class RecipeSelectedTest {
             }
         };
     }
+
+
+
+
+
 }
