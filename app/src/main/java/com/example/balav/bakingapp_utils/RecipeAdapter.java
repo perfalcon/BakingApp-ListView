@@ -9,12 +9,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.balav.bakingapp_utils.model.Baking;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.BindView;
 
 public class RecipeAdapter extends RecyclerView.Adapter {
     private static final String TAG = RecipeAdapter.class.getSimpleName();
@@ -56,15 +60,20 @@ public class RecipeAdapter extends RecyclerView.Adapter {
 
     class RecipeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView reviewViewText;
+        ImageView imageView;
+
+
         public RecipeViewHolder(View itemView) {
             super (itemView);
-            reviewViewText = (TextView)itemView.findViewById (R.id.text_recipe);
-            reviewViewText.setOnClickListener (RecipeViewHolder.this);
+            reviewViewText = itemView.findViewById (R.id.text_recipe);
+            itemView.setOnClickListener (this);
+            imageView = itemView.findViewById(R.id.recipeImage);
         }
         void bind(int listIndex) {
             Log.v (TAG, "Baking-->"+mBaking.get (listIndex));
             Log.v (TAG, "Recipe Name-->"+mBaking.get (listIndex).getName ());
             reviewViewText.setText (mBaking.get (listIndex).getName ());
+            Picasso.with(mContext).load(R.drawable.baking1).into(imageView);
         }
 
 

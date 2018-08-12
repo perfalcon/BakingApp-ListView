@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.balav.bakingapp_utils.model.Step;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.LoadControl;
@@ -32,6 +34,8 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+
 public class StepFragment extends Fragment implements View.OnClickListener {
     public static final String TAG = StepFragment.class.getSimpleName ();
     public static final String STEP_KEY="step";
@@ -44,6 +48,13 @@ public class StepFragment extends Fragment implements View.OnClickListener {
     private List<Step> listSteps;
     private View rootView;
     TextView mRecipeName;
+    public long currentMediaPosition = C.TIME_UNSET;
+    Uri videoURI;
+
+
+
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -51,11 +62,9 @@ public class StepFragment extends Fragment implements View.OnClickListener {
         int step_id=0;
         if(savedInstanceState!=null){
             Log.v (TAG, "Restoring State");
-            if (savedInstanceState.containsKey (STEP_KEY)) {
-                current_position = savedInstanceState.getInt (STEP_ID);
-                listSteps =savedInstanceState.getParcelableArrayList (STEP_KEY);
-              //  current_position =step_id;
-            }
+            current_position = savedInstanceState.getInt (STEP_ID);
+            listSteps =savedInstanceState.getParcelableArrayList (STEP_KEY);
+            currentMediaPosition = savedInstanceState.getLong("Player_Position");
         }
         rootView = inflater.inflate(R.layout.step_detail, container, false);
         if(listSteps!=null && listSteps.size ()>0 ){
@@ -72,21 +81,23 @@ public class StepFragment extends Fragment implements View.OnClickListener {
     private void populateUI(Step step) {
         Log.v(TAG,"Calling Populate UI -->"+step.toString ());
         if(!isLandScape ()){
-            mRecipeName = (TextView) rootView.findViewById(R.id.tv_step_description);
+            mRecipeName = rootView.findViewById(R.id.tv_step_description);
             mRecipeName.setText(step.getDescription ());
             // Initialize the buttons with the composers names.
             mButtons = initializeButtons();
         }
 
         // Initialize the player view.
-        mPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.playerView);
+        mPlayerView = rootView.findViewById(R.id.playerView);
         Log.v (TAG,"The Video-->"+step.getVideoURL ());
         // Initialize the player.
         if(step.getVideoURL ()!=null && !step.getVideoURL ().isEmpty ()){
             Log.v (TAG,"Updating the Video-->"+step.getVideoURL ());
             mPlayerView.setVisibility (View.VISIBLE);
-            initializePlayer(Uri.parse(step.getVideoURL ()));
+            videoURI=Uri.parse(step.getVideoURL ());
+            initializePlayer(videoURI);
         }else {
+            mExoPlayer=null;
             Log.v(TAG,"No Video -->ExoPlayer-->"+mExoPlayer);
             mPlayerView.setVisibility (View.INVISIBLE);
         }
@@ -107,13 +118,11 @@ public class StepFragment extends Fragment implements View.OnClickListener {
             LoadControl loadControl = new DefaultLoadControl ();
             mExoPlayer = ExoPlayerFactory.newSimpleInstance(rootView.getContext (), trackSelector, loadControl);
             mPlayerView.setPlayer(mExoPlayer);
-        }else{
-            //Setting env to play the next passed video
-            mExoPlayer.stop();
-            mExoPlayer.seekTo(0L);
+            if (currentMediaPosition != C.TIME_UNSET) mExoPlayer.seekTo(currentMediaPosition);
+            mExoPlayer.prepare(mediaSource);
+            mExoPlayer.setPlayWhenReady(true);
         }
-        mExoPlayer.prepare(mediaSource);
-        mExoPlayer.setPlayWhenReady(true);
+
     }
 
 
@@ -125,16 +134,67 @@ public class StepFragment extends Fragment implements View.OnClickListener {
         mExoPlayer.release();
         mExoPlayer = null;
     }
+
+    private void hardReleasePlayer() {
+        if (mExoPlayer != null) {
+            currentMediaPosition = mExoPlayer.getCurrentPosition();
+            mExoPlayer.stop();
+            mExoPlayer.release();
+            mExoPlayer = null;
+        }
+    }
+
+    private void softReleasePlayer(){
+        if (mExoPlayer != null) {
+            currentMediaPosition = mExoPlayer.getCurrentPosition();
+            mExoPlayer.stop();
+            mExoPlayer.release();
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        initializePlayer(videoURI);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(mExoPlayer != null && videoURI != null) {
+            initializePlayer(videoURI);
+            mExoPlayer.seekTo(currentMediaPosition);
+        }
+    }
+
     /**
      * Release the player when the activity is destroyed.
      */
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if(mExoPlayer!=null){
-            releasePlayer();
-        }
+    public void onDestroyView() {
+        super.onDestroyView();
+        hardReleasePlayer();
     }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        softReleasePlayer();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        softReleasePlayer();
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        softReleasePlayer();
+    }
+
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -143,6 +203,10 @@ public class StepFragment extends Fragment implements View.OnClickListener {
         Log.v (TAG, "Saving the State");
         outState.putInt (STEP_ID,current_position);
         outState.putIntegerArrayList (STEP_KEY,(ArrayList)listSteps);
+        if(mExoPlayer != null) {
+            currentMediaPosition = mExoPlayer.getCurrentPosition();
+            outState.putLong("Player_Position", currentMediaPosition);
+        }
     }
 
     /**
@@ -155,7 +219,7 @@ public class StepFragment extends Fragment implements View.OnClickListener {
     private Button[] initializeButtons() {
         Button[] buttons = new Button[mButtonIDs.length];
         for (int i = 0; i < buttons.length; i++) {
-            Button currentButton = (Button) rootView.findViewById(mButtonIDs[i]);
+            Button currentButton = rootView.findViewById(mButtonIDs[i]);
             buttons[i] = currentButton;
             currentButton.setOnClickListener (this);
         }

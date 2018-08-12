@@ -66,7 +66,7 @@ OnStepClickListener mCallback;
         }
 
         View rootView = inflater.inflate(R.layout.fragment_recipe, container, false);
-        final TextView step = (TextView)rootView.findViewById (R.id.tv_fg_step);
+      /*  final TextView step = (TextView)rootView.findViewById (R.id.tv_fg_step);
         step.setText(mBaking.getIngredients ().get (0).getIngredient ());
         step.setOnClickListener (new View.OnClickListener () {
             @Override
@@ -74,10 +74,10 @@ OnStepClickListener mCallback;
                 Random x = new Random ();
                 step.setText (mBaking.getIngredients ().get(x.nextInt (4)).getIngredient ());
             }
-        });
+        });*/
 
 
-        ListView listView = (ListView)rootView.findViewById (R.id.lv_steps);
+        ListView listView = rootView.findViewById (R.id.lv_steps);
 
         StepAdapter mStepAdapter = new StepAdapter (getContext (),mBaking.getSteps ());
         listView.setAdapter (mStepAdapter);

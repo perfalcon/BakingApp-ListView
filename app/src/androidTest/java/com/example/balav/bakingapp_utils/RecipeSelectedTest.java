@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.espresso.matcher.BoundedMatcher;
+import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.runner.AndroidJUnit4;
 
 import android.support.test.rule.ActivityTestRule;
@@ -16,6 +17,7 @@ import com.example.balav.bakingapp_utils.model.Baking;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +26,9 @@ import static android.app.PendingIntent.getActivity;
 import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.scrollTo;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
@@ -38,50 +42,50 @@ public class RecipeSelectedTest {
     @Rule
     public ActivityTestRule<MainActivity> activityRule = new ActivityTestRule<>(MainActivity.class);
 
-
-
-
     Baking baking;
+    int no_recipes;
 
-     public void prepBakingRecipe(){
+    public void prepBakingRecipe(){
         baking =activityRule.getActivity ().mBaking.get (1);
     }
 
+    @Before
+    public void setUp(){
+        no_recipes = 4;
+    }
 
     @Test
     public void OnRecipesDisplayedTest(){
-
-       // onView(withId(R.id.rv_recipe)).perform(RecyclerViewActions.actionOnItemAtPosition(1, click()));
-      /*  onView(withId(R.id.rv_recipe)).perform(RecyclerViewActions.scrollToPosition(2));
-        onView(withId(R.id.text_recipe)).check(matches(not(withText(""))));
-*/
-        onView(withId(R.id.rv_recipe)).perform(
+         /*onView(withId(R.id.rv_recipe)).perform(
                 RecyclerViewActions.scrollToHolder(
-                        withHolderRecipe ("Cheesecake")
+                        withHolderRecipe ("Brownies")
                 )
         ).perform (click ());
+        */
+        onView (ViewMatchers.withId (R.id.rv_recipe))
+                .perform (RecyclerViewActions.actionOnItemAtPosition (3,scrollTo ()))
+                .check (matches (hasDescendant (withText ("Yellow Cake"))));
+    }
+
+    @Test
+    public void OnRecipeNoBlankTest(){
+        onView (ViewMatchers.withId (R.id.rv_recipe))
+                .perform (RecyclerViewActions.scrollToPosition (3))
+                .check (matches (not(withText (""))));
+
+        for(int i=1;i<=no_recipes;i++){
+            onView (ViewMatchers.withId (R.id.rv_recipe))
+                    .perform (RecyclerViewActions.scrollToPosition (i))
+                    .check (matches (not(withText (""))));
+        }
     }
 
 
     @Test
-    public void OnRecipeStepsDisplayedTest(){
-        onView(withId(R.id.rv_recipe)).perform(
-                RecyclerViewActions.scrollToHolder(
-                        withHolderRecipe ("Cheesecake")
-                )
-        ).perform (click ());
-
-        prepBakingRecipe ();
-       Log.v("Baking 123213123-->",baking.toString ());
-    }
-
-    @Test
-    public void mentorTest(){
-        onView(withId(R.id.rv_recipe)).perform(
-                RecyclerViewActions.scrollToHolder(
-                        withHolderRecipe ("Cheesecake")
-                )
-        ).perform (click ());
+    public void detailActivityTest(){
+        //Nutella Pie
+        onView (ViewMatchers.withId (R.id.rv_recipe))
+                .perform (RecyclerViewActions.actionOnItemAtPosition (1,click ()));
 
         final ActivityTestRule detailActivity = new ActivityTestRule<DetailActivity> (DetailActivity.class);
         Intent intent = new Intent (InstrumentationRegistry.getContext(),DetailActivity.class);
@@ -105,7 +109,7 @@ public class RecipeSelectedTest {
             @Override
             protected boolean matchesSafely(RecipeAdapter.RecipeViewHolder item) {
                 Log.v("In Matcher","matchSafely");
-                TextView recipeText = (TextView) item.itemView.findViewById(R.id.text_recipe);
+                TextView recipeText = item.itemView.findViewById(R.id.text_recipe);
                 if (recipeText == null) {
                     return false;
                 }

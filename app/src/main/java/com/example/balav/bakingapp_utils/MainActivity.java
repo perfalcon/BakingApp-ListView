@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -90,11 +91,31 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     private void loadRecipesView(){
-        RecyclerView rvRecipe = (RecyclerView) findViewById(R.id.rv_recipe);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        rvRecipe.setLayoutManager (layoutManager);
+        RecyclerView rvRecipe = findViewById(R.id.rv_recipe);
+        int no_cols= calculateNoOfColumns(this);
+
+        if(no_cols>1){
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, no_cols);
+            rvRecipe.setLayoutManager (gridLayoutManager);
+        }else{
+            LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+            rvRecipe.setLayoutManager (layoutManager);
+        }
+
+
+
         rvRecipe.setHasFixedSize(true);
         RecipeAdapter recipeAdapter = new RecipeAdapter (mBaking);
         rvRecipe.setAdapter (recipeAdapter);
+    }
+
+    public static int calculateNoOfColumns(Context context) {
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+        int scalingFactor = 200;
+        int noOfColumns = (int) (dpWidth / scalingFactor);
+        if(noOfColumns < 2)
+            noOfColumns = 2;
+        return noOfColumns;
     }
 }

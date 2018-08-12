@@ -10,7 +10,7 @@
     <dimen name="recipe_card_margin">5dp</dimen>
     <dimen name ="recipe_corner_radius">4dp</dimen>
     <dimen name="recipe_card_elevation">6dp</dimen>
-    <dimen name ="recipe_textSize">40sp</dimen>
+    <dimen name ="recipe_textSize">25sp</dimen>
     <dimen name ="land_exoplayer_margin">8dp</dimen>
     <dimen name ="exoplayer_margin">8dp</dimen>
     <dimen name="exoplayer_height">271dp</dimen>
