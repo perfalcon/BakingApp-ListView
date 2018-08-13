@@ -14,9 +14,15 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -43,19 +49,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate (savedInstanceState);
         setContentView (R.layout.activity_main);
-        /*btnRequest = (TextView) findViewById(R.id.tv_text);
-
-        btnRequest.setOnClickListener(new View.OnClickListener() {
-                                          @Override
-                                          public void onClick(View v){
-                                              sendAndRequestResponse();
-                                          }
-                                      }
-
-        );*/
-
         sendAndRequestResponse();
-
     }
 
     protected  void displayBakingDetails(){
@@ -86,8 +80,23 @@ public class MainActivity extends AppCompatActivity {
 
     private class ErrorListener implements Response.ErrorListener{
         @Override
-        public void onErrorResponse(VolleyError error){
-            Log.i(TAG,"Error :" + error.toString());
+        public void onErrorResponse(VolleyError volleyError){
+            Log.i(TAG,"Error :" + volleyError.toString());
+            String message="";
+            if (volleyError instanceof NetworkError) {
+                message = "Cannot connect to Internet...Please check your connection!";
+            } else if (volleyError instanceof ServerError) {
+                message = "The server could not be found. Please try again after some time!!";
+            } else if (volleyError instanceof AuthFailureError) {
+                message = "Cannot connect to Internet...Please check your connection!";
+            } else if (volleyError instanceof ParseError) {
+                message = "Parsing error! Please try again after some time!!";
+            } else if (volleyError instanceof NoConnectionError) {
+                message = "Cannot connect to Internet...Please check your connection!";
+            } else if (volleyError instanceof TimeoutError) {
+                message = "Connection TimeOut! Please check your internet connection.";
+            }
+            Toast.makeText(getApplicationContext (), message, Toast.LENGTH_LONG).show();
         }
     }
     private void loadRecipesView(){
@@ -101,9 +110,6 @@ public class MainActivity extends AppCompatActivity {
             LinearLayoutManager layoutManager = new LinearLayoutManager(this);
             rvRecipe.setLayoutManager (layoutManager);
         }
-
-
-
         rvRecipe.setHasFixedSize(true);
         RecipeAdapter recipeAdapter = new RecipeAdapter (mBaking);
         rvRecipe.setAdapter (recipeAdapter);
