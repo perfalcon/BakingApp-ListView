@@ -35,10 +35,7 @@ public class DetailActivity extends AppCompatActivity implements RecipeFragment.
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState (outState);
-        Log.v (TAG, "Saving the State");
-        outState.putParcelable (BAKING_KEY,baking);
-
-    }
+        outState.putParcelable (BAKING_KEY,baking);    }
 
     @Override
     protected void onResume() {
@@ -76,37 +73,30 @@ public class DetailActivity extends AppCompatActivity implements RecipeFragment.
             // This LinearLayout will only initially exist in the two-pane tablet case
             mTwoPane = true;
             if(savedInstanceState==null){
-                // Create a new stepFragment
                 StepFragment stepFragment = new StepFragment ();
                 stepFragment.setSteps (baking.getSteps ());
-                // Add the fragment to its container using a FragmentManager and a Transaction
                 getSupportFragmentManager().beginTransaction()
                         .add(R.id.step_detail_container, stepFragment)
                         .commit();
             }
-
         }else {
             mTwoPane=false;
         }
         Log.v(TAG,"In OnCreate twoPane-->"+mTwoPane);
         populateUI(baking);
-        // Create a new recipeFragment
         RecipeFragment recipeFragment = new RecipeFragment (baking);
-        // Add the fragment to its container using a FragmentManager and a Transaction
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.step_container, recipeFragment)
                 .commit();
         deleteIngredients();
         insertIngredients(baking);
     }
-
     private void deleteIngredients() {
         Log.v(TAG,"deleteIngredients-->");
         Uri uri = IngredientContract.IngredientEntry.CONTENT_URI;
         int rows_deleted =  getContentResolver ().delete (uri,null,null);
         Log.v(TAG,"Rows Deleted -->"+rows_deleted);
     }
-
     private void closeOnError() {
         finish();
         Toast.makeText(this, R.string.detail_error_message, Toast.LENGTH_SHORT).show();
@@ -134,11 +124,10 @@ public class DetailActivity extends AppCompatActivity implements RecipeFragment.
             Log.v(TAG,"INGRE--->"+rows+"."+ingredient.getIngredient ()+" "+ingredient.getQuantity ()+""+ingredient.getMeasure ());
             }
 
-            if(rows>0)
-            Toast.makeText (getBaseContext (),rows+ "--> ingredients added to DB",Toast.LENGTH_LONG).show ();
+           /* if(rows>0)
+            Toast.makeText (getBaseContext (),rows+ "--> ingredients added to DB",Toast.LENGTH_LONG).show ();*/
 
             UpdateWidget();
-
     }
 
     private void UpdateWidget() {

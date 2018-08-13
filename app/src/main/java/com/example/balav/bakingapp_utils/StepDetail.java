@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.balav.bakingapp_utils.model.Step;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -60,22 +61,22 @@ public class StepDetail extends AppCompatActivity {
         setContentView (R.layout.activity_android_me);
         this.getSupportActionBar ().setDisplayHomeAsUpEnabled (true);
 
-        Intent intent = getIntent ();
-        int step_id = intent.getIntExtra (STEP_ID,0);
-        Log.v (TAG, "Step CLICKED-->" + step_id);
-        listSteps = intent.getParcelableArrayListExtra (STEP_KEY);
 
-       // Create a new recipeFragment
-        StepFragment stepFragment = new StepFragment ();
-        stepFragment.setSteps (listSteps);
-        stepFragment.setCurrentPosition (step_id);
+        if(savedInstanceState==null){
+            Intent intent = getIntent ();
+            if (intent == null) { closeOnError ();  }
+            int step_id = intent.getIntExtra (STEP_ID,0);
+            Log.v (TAG, "Step CLICKED-->" + step_id);
+            listSteps = intent.getParcelableArrayListExtra (STEP_KEY);
 
-        // Add the fragment to its container using a FragmentManager and a Transaction
-        FragmentManager fragmentManager = getSupportFragmentManager();
-
-        fragmentManager.beginTransaction()
-                .add(R.id.step_detail_container, stepFragment)
-                .commit();
+            StepFragment stepFragment = new StepFragment ();
+            stepFragment.setSteps (listSteps);
+            stepFragment.setCurrentPosition (step_id);
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction()
+                    .add(R.id.step_detail_container, stepFragment)
+                    .commit();
+        }
     }
     public  void HideNavigationBar(){
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_FULLSCREEN);
@@ -85,6 +86,10 @@ public class StepDetail extends AppCompatActivity {
     protected void onResume() {
         super.onResume ();
          HideNavigationBar();
+    }
+    private void closeOnError() {
+        finish();
+        Toast.makeText(this, R.string.detail_error_message, Toast.LENGTH_SHORT).show();
     }
 }
 

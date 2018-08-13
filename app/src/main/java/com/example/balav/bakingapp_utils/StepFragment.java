@@ -252,6 +252,9 @@ public class StepFragment extends Fragment implements View.OnClickListener {
                 current_position++;
             }
         }
+        if (mExoPlayer != null) {
+            mExoPlayer.stop();
+        }
         Log.v(TAG,"Updaed Current Postion-->"+current_position);
         populateUI(listSteps.get (current_position));
     }
