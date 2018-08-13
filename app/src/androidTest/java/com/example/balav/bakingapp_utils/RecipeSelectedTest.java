@@ -56,12 +56,6 @@ public class RecipeSelectedTest {
 
     @Test
     public void OnRecipesDisplayedTest(){
-         /*onView(withId(R.id.rv_recipe)).perform(
-                RecyclerViewActions.scrollToHolder(
-                        withHolderRecipe ("Brownies")
-                )
-        ).perform (click ());
-        */
         onView (ViewMatchers.withId (R.id.rv_recipe))
                 .perform (RecyclerViewActions.actionOnItemAtPosition (3,scrollTo ()))
                 .check (matches (hasDescendant (withText ("Yellow Cake"))));
